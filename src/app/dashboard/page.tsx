@@ -24,6 +24,7 @@ export default async function DashboardPage({ searchParams }: Props) {
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-semibold mb-8">Dashboard</h1>
+      <h2 className="text-xl font-semibold mb-8">Select Date</h2>
       <Suspense>
         <WorkoutDashboard
           selectedDateStr={selectedDateStr}
