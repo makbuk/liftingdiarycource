@@ -3,6 +3,14 @@ import { workouts, workout_exercises, exercises } from "@/db/schema";
 import { and, eq, gte, lt } from "drizzle-orm";
 import { startOfDay, endOfDay } from "date-fns";
 
+export async function createWorkout(userId: string, name: string, startedAt: Date) {
+  const [workout] = await db
+    .insert(workouts)
+    .values({ user_id: userId, name, started_at: startedAt })
+    .returning();
+  return workout;
+}
+
 export type WorkoutSummary = {
   id: string;
   name: string;

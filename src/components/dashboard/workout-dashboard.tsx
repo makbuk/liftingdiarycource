@@ -5,6 +5,7 @@ import { format, differenceInMinutes, parseISO } from "date-fns";
 import { Dumbbell } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { WorkoutSummary } from "@/data/workouts";
 
 type Props = {
@@ -49,9 +50,13 @@ export function WorkoutDashboard({ selectedDateStr, selectedDate, workouts }: Pr
         </h2>
 
         {workouts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center text-muted-foreground">
-            <Dumbbell className="size-8 mb-3 opacity-40" />
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center text-muted-foreground gap-4">
+            <Dumbbell className="size-8 opacity-40" />
             <p className="text-sm">No workouts logged for this date.</p>
+            {/* TODO: link to /dashboard/workout/new or open a modal */}
+            <Button className="bg-black text-white rounded-md px-4 py-2 hover:bg-black/90">
+              Log New Workout
+            </Button>
           </div>
         ) : (
           <ul className="space-y-3">

@@ -120,6 +120,32 @@ export async function createWorkoutAction(name: string, date: Date) {
 }
 ```
 
+### Redirects
+
+**Never** call `redirect()` inside a server action. Server actions must return data (or throw); navigation is the client's responsibility.
+
+After a server action resolves, perform the redirect client-side using the Next.js router:
+
+```ts
+// ✅ Correct — redirect on the client after the action resolves
+"use client";
+import { useRouter } from "next/navigation";
+import { createWorkoutAction } from "./actions";
+
+const router = useRouter();
+
+async function handleSubmit() {
+  await createWorkoutAction(name, date);
+  router.push("/dashboard"); // redirect happens client-side
+}
+
+// ❌ Wrong — do not redirect inside a server action
+export async function createWorkoutAction(name: string, date: Date) {
+  // ...
+  redirect("/dashboard"); // not allowed
+}
+```
+
 ### Rules summary
 
 | Rule | Detail |
@@ -131,3 +157,4 @@ export async function createWorkoutAction(name: string, date: Date) {
 | Zod validation | Every action validates all inputs before processing |
 | Auth check | Always verify the user is authenticated before mutating data |
 | `/data` helpers | Never call Drizzle directly in an action — delegate to `/data` |
+| No `redirect()` | Never call `redirect()` in a server action — redirect client-side after the action resolves |
