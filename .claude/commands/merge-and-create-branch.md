@@ -1,1 +1,1 @@
-commit any chnaes in the current branch and provide a suitable commit message based on the code changes then merege the current branch into the $1 branch and resolve any issues off the back of that merge. Then create a new branch called $2
+Commit any chnaes in the current branch and provide a suitable commit message based on the code changes then merege the current branch into the $1 branch and resolve any issues off the back of that merge. Then create a new branch called $2
