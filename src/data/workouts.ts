@@ -19,6 +19,23 @@ export type WorkoutSummary = {
   exercises: string[];
 };
 
+export async function getWorkoutById(id: string, userId: string) {
+  const [workout] = await db
+    .select()
+    .from(workouts)
+    .where(and(eq(workouts.id, id), eq(workouts.user_id, userId)));
+  return workout ?? null;
+}
+
+export async function updateWorkout(id: string, userId: string, name: string, startedAt: Date) {
+  const [workout] = await db
+    .update(workouts)
+    .set({ name, started_at: startedAt })
+    .where(and(eq(workouts.id, id), eq(workouts.user_id, userId)))
+    .returning();
+  return workout;
+}
+
 export async function getWorkoutsForUserByDate(
   userId: string,
   date: Date
