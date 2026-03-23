@@ -116,9 +116,9 @@ export async function addSet(workoutExerciseId: string, reps: number, weight: nu
 }
 
 export async function deleteSet(setId: string, userId: string) {
-  // Verify parent workout belongs to user
+  // Verify parent workout belongs to user and get workout_exercise_id for renumbering
   const [row] = await db
-    .select({ user_id: workouts.user_id })
+    .select({ user_id: workouts.user_id, workout_exercise_id: sets.workout_exercise_id })
     .from(sets)
     .innerJoin(workout_exercises, eq(workout_exercises.id, sets.workout_exercise_id))
     .innerJoin(workouts, eq(workouts.id, workout_exercises.workout_id))
@@ -126,4 +126,15 @@ export async function deleteSet(setId: string, userId: string) {
   if (!row || row.user_id !== userId) throw new Error("Unauthorized");
 
   await db.delete(sets).where(eq(sets.id, setId));
+
+  // Renumber remaining sets sequentially
+  const remaining = await db
+    .select({ id: sets.id })
+    .from(sets)
+    .where(eq(sets.workout_exercise_id, row.workout_exercise_id))
+    .orderBy(sets.set_number);
+
+  for (let i = 0; i < remaining.length; i++) {
+    await db.update(sets).set({ set_number: i + 1 }).where(eq(sets.id, remaining[i].id));
+  }
 }
