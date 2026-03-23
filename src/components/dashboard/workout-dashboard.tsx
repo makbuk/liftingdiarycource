@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { format, differenceInMinutes, parseISO } from "date-fns";
-import { Dumbbell } from "lucide-react";
+import { CalendarIcon, Dumbbell } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { WorkoutSummary } from "@/data/workouts";
 
 type Props = {
@@ -21,6 +23,7 @@ export function WorkoutDashboard({ selectedDateStr, selectedDate, workouts }: Pr
   const titleDate = parseISO(selectedDateStr);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [open, setOpen] = useState(false);
 
   function handleDateSelect(date: Date | undefined) {
     if (!date) return;
@@ -34,17 +37,32 @@ export function WorkoutDashboard({ selectedDateStr, selectedDate, workouts }: Pr
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
-      {/* Left: Calendar */}
-      <div className="rounded-lg border bg-card p-4 w-fit">
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={handleDateSelect}
-        />
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between gap-4">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline">
+              <CalendarIcon className="size-4 mr-2" />
+              {format(titleDate, "do MMM yyyy")}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => {
+                handleDateSelect(date);
+                setOpen(false);
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+        <Button asChild className="bg-black text-white rounded-md px-4 py-2 hover:bg-black/90">
+          <Link href={`/dashboard/workout/new?date=${selectedDateStr}`}>Log New Workout</Link>
+        </Button>
       </div>
 
-      {/* Right: Workout list */}
+      {/* Workout list */}
       <div>
         <h2 className="text-lg font-medium mb-4">
           Workouts for {format(titleDate, "do MMM yyyy")}
@@ -54,10 +72,6 @@ export function WorkoutDashboard({ selectedDateStr, selectedDate, workouts }: Pr
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center text-muted-foreground gap-4">
             <Dumbbell className="size-8 opacity-40" />
             <p className="text-sm">No workouts logged for this date.</p>
-            {/* TODO: link to /dashboard/workout/new or open a modal */}
-            <Button className="bg-black text-white rounded-md px-4 py-2 hover:bg-black/90">
-              Log New Workout
-            </Button>
           </div>
         ) : (
           <ul className="space-y-3">

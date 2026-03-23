@@ -11,10 +11,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { createWorkoutAction } from "./actions";
 
-export function NewWorkoutForm() {
+type Props = { initialDate?: Date };
+
+export function NewWorkoutForm({ initialDate }: Props) {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState<Date>(initialDate ?? new Date());
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
