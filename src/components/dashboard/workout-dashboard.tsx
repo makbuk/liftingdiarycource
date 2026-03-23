@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { format, differenceInMinutes, parseISO } from "date-fns";
@@ -16,14 +16,25 @@ type Props = {
   selectedDateStr: string;
   selectedDate: Date;
   workouts: WorkoutSummary[];
+  tz: string;
 };
 
-export function WorkoutDashboard({ selectedDateStr, selectedDate, workouts }: Props) {
+export function WorkoutDashboard({ selectedDateStr, selectedDate, workouts, tz }: Props) {
   // Parse YYYY-MM-DD as local midnight so format() shows the correct day
   const titleDate = parseISO(selectedDateStr);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
+
+  // Inject the browser's timezone into the URL so the server can use it
+  useEffect(() => {
+    const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTz && browserTz !== tz) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tz", browserTz);
+      router.replace(`?${params.toString()}`);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleDateSelect(date: Date | undefined) {
     if (!date) return;
@@ -58,7 +69,7 @@ export function WorkoutDashboard({ selectedDateStr, selectedDate, workouts }: Pr
           </PopoverContent>
         </Popover>
         <Button asChild className="bg-black text-white rounded-md px-4 py-2 hover:bg-black/90">
-          <Link href={`/dashboard/workout/new?date=${selectedDateStr}`}>Log New Workout</Link>
+          <Link href={`/dashboard/workout/new?date=${selectedDateStr}&tz=${encodeURIComponent(tz)}`}>Log New Workout</Link>
         </Button>
       </div>
 

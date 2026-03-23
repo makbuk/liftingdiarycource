@@ -1,25 +1,26 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { format, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { getWorkoutsForUserByDate } from "@/data/workouts";
 import { WorkoutDashboard } from "@/components/dashboard/workout-dashboard";
 
 type Props = {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; tz?: string }>;
 };
 
 export default async function DashboardPage({ searchParams }: Props) {
   const { userId } = await auth();
   if (!userId) redirect("/");
 
-  const { date: dateParam } = await searchParams;
-  // Always work with a plain YYYY-MM-DD string to avoid UTC/local shifts
-  const selectedDateStr = dateParam ?? format(new Date(), "yyyy-MM-dd");
-  // parseISO interprets YYYY-MM-DD as local midnight
+  const { date: dateParam, tz: tzParam } = await searchParams;
+  const tz = tzParam ?? "UTC";
+  // Default to today in the user's timezone
+  const selectedDateStr = dateParam ?? formatInTimeZone(new Date(), tz, "yyyy-MM-dd");
   const selectedDate = parseISO(selectedDateStr);
 
-  const workouts = await getWorkoutsForUserByDate(userId, selectedDate);
+  const workouts = await getWorkoutsForUserByDate(userId, selectedDate, tz);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
@@ -30,6 +31,7 @@ export default async function DashboardPage({ searchParams }: Props) {
           selectedDateStr={selectedDateStr}
           selectedDate={selectedDate}
           workouts={workouts}
+          tz={tz}
         />
       </Suspense>
     </div>

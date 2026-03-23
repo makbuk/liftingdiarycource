@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { workouts, workout_exercises, exercises } from "@/db/schema";
 import { and, eq, gte, lt } from "drizzle-orm";
 import { startOfDay, endOfDay } from "date-fns";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 
 export async function createWorkout(userId: string, name: string, startedAt: Date) {
   const [workout] = await db
@@ -38,10 +39,12 @@ export async function updateWorkout(id: string, userId: string, name: string, st
 
 export async function getWorkoutsForUserByDate(
   userId: string,
-  date: Date
+  date: Date,
+  tz: string = "UTC"
 ): Promise<WorkoutSummary[]> {
-  const dayStart = startOfDay(date);
-  const dayEnd = endOfDay(date);
+  const zonedDate = toZonedTime(date, tz);
+  const dayStart = fromZonedTime(startOfDay(zonedDate), tz);
+  const dayEnd = fromZonedTime(endOfDay(zonedDate), tz);
 
   const rows = await db
     .select({
