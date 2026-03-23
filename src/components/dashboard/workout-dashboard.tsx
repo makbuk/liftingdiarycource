@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { format, differenceInMinutes, parseISO } from "date-fns";
 import { Dumbbell } from "lucide-react";
@@ -67,32 +68,34 @@ export function WorkoutDashboard({ selectedDateStr, selectedDate, workouts }: Pr
                   : null;
 
               return (
-                <li
-                  key={workout.id}
-                  className="rounded-lg border bg-card px-5 py-4"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{workout.name}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {format(workout.started_at, "h:mm a")}
-                    </span>
-                  </div>
-
-                  {workout.exercises.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      {workout.exercises.map((ex) => (
-                        <Badge key={ex} variant="secondary" className="text-xs font-normal">
-                          {ex}
-                        </Badge>
-                      ))}
+                <li key={workout.id}>
+                  <Link
+                    href={`/dashboard/workout/${workout.id}`}
+                    className="block rounded-lg border bg-card px-5 py-4 hover:bg-accent transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">{workout.name}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {format(workout.started_at, "h:mm a")}
+                      </span>
                     </div>
-                  )}
 
-                  {duration !== null && (
-                    <p className="text-xs text-muted-foreground">
-                      Duration: {duration} min
-                    </p>
-                  )}
+                    {workout.exercises.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {workout.exercises.map((ex) => (
+                          <Badge key={ex} variant="secondary" className="text-xs font-normal">
+                            {ex}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    {duration !== null && (
+                      <p className="text-xs text-muted-foreground">
+                        Duration: {duration} min
+                      </p>
+                    )}
+                  </Link>
                 </li>
               );
             })}
